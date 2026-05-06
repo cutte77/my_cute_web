@@ -35,7 +35,11 @@ TEXT = {
     ),
     "height_metric": "\u8eab\u9ad8",
     "ratio_metric": "\u6bd4\u4f8b\u4f30\u8ba1",
+    "target_ratio_metric": "\u76ee\u6807\u9ec4\u91d1\u6bd4\u4f8b",
+    "adjustment_metric": "\u5efa\u8bae\u8c03\u6574",
     "core_advice": "#### \u6838\u5fc3\u5efa\u8bae",
+    "adjustment_title": "#### \u8170\u7ebf\u8c03\u6574",
+    "style_title": "#### \u7a7f\u642d\u5efa\u8bae",
     "reference": "#### \u53c2\u8003\u8bf4\u660e",
     "prototype_note": (
         "\u5f53\u524d\u7248\u672c\u4e3a\u57fa\u7840 UI \u793a\u4f8b\uff0c"
@@ -44,49 +48,51 @@ TEXT = {
     ),
 }
 
+TARGET_RATIO = 0.618
 
 def build_suggestion(height_cm: int, upper_lower_ratio: float) -> dict[str, str]:
-    if upper_lower_ratio >= 0.62:
-        waistline_cm = 1
-        ratio_comment = (
-            "\u4f60\u7684\u6bd4\u4f8b\u5df2\u7ecf\u6bd4\u8f83\u63a5\u8fd1"
-            "\u9ad8\u8170\u663e\u817f\u957f\u7684\u89c6\u89c9\u6548\u679c\u3002"
+    ratio_gap = abs(upper_lower_ratio - TARGET_RATIO)
+    adjustment_cm = ratio_gap * height_cm
+
+    if adjustment_cm < 0.1:
+        adjustment_text = "\u5df2\u63a5\u8fd1\u9ec4\u91d1\u6bd4\u4f8b\uff0c\u57fa\u672c\u65e0\u9700\u8c03\u6574"
+    elif upper_lower_ratio < TARGET_RATIO:
+        adjustment_text = f"\u5efa\u8bae\u5c06\u8170\u7ebf\u4e0a\u63d0\u7ea6 {adjustment_cm:.1f}cm"
+    else:
+        adjustment_text = f"\u5efa\u8bae\u5c06\u8170\u7ebf\u4e0b\u653e\u7ea6 {adjustment_cm:.1f}cm"
+
+    if upper_lower_ratio < 0.6:
+        advice_text = (
+            "\u5efa\u8bae\u91c7\u7528\u7edd\u5bf9\u9ad8\u8170\u5355\u54c1"
+            "\uff08\u524d\u88c6>30cm\uff09\uff0c\u914d\u5408\u987a\u8272\u978b\u5b50\uff0c"
+            "\u5f3a\u5236\u62c9\u5347\u89c6\u89c9\u8170\u7ebf\u3002"
         )
-    elif upper_lower_ratio >= 0.56:
-        waistline_cm = 3
-        ratio_comment = (
-            "\u5f53\u524d\u6bd4\u4f8b\u4e2d\u7b49\uff0c"
-            "\u53ef\u4ee5\u901a\u8fc7\u8170\u7ebf\u4f4d\u7f6e"
-            "\u548c\u989c\u8272\u5ef6\u4f38\u6765\u4f18\u5316\u3002"
+    elif upper_lower_ratio <= 0.65:
+        advice_text = (
+            "\u6bd4\u4f8b\u4f18\u8d8a\uff0c\u5e38\u89c4\u9ad8\u8170\u6216\u4e2d\u8170"
+            "\u5355\u54c1\u5373\u53ef\uff0c\u91cd\u70b9\u4fdd\u6301\u8272\u5f69\u8fde\u8d2f\u3002"
         )
     else:
-        waistline_cm = 5
-        ratio_comment = (
-            "\u5f53\u524d\u89c6\u89c9\u8170\u7ebf\u504f\u4f4e\uff0c"
-            "\u5efa\u8bae\u4f18\u5148\u62c9\u9ad8\u8170\u7ebf\u5e76"
-            "\u51cf\u5c11\u4e0a\u4e0b\u88c5\u622a\u65ad\u3002"
+        advice_text = (
+            "\u5f53\u524d\u4e0b\u534a\u8eab\u89c6\u89c9\u6bd4\u4f8b\u5df2\u9ad8\u4e8e"
+            "\u5e38\u89c4\u9ec4\u91d1\u6bd4\u4f8b\uff0c\u53ef\u9009\u62e9\u4e2d\u8170"
+            "\u6216\u7565\u5bbd\u677e\u4e0a\u88c5\uff0c\u8ba9\u6574\u4f53\u91cd\u5fc3\u66f4\u5e73\u8861\u3002"
         )
 
-    ideal_waistline = round(height_cm * 0.43)
-
     return {
-        "waistline": (
-            f"\u5efa\u8bae\u63d0\u9ad8\u8170\u7ebf\u7ea6 {waistline_cm}cm"
-        ),
-        "color": (
-            "\u5efa\u8bae\u5185\u642d\u987a\u8272\uff0c"
-            "\u51cf\u5c11\u8170\u8179\u5904\u5206\u5272\u611f"
-        ),
-        "fit": (
-            "\u4f18\u5148\u9009\u62e9\u9ad8\u8170\u4e0b\u88c5\u3001"
-            "\u77ed\u6b3e\u5916\u5957\u6216\u585e\u8863\u89d2\u7684\u7a7f\u6cd5"
-        ),
+        "adjustment_cm": f"{adjustment_cm:.1f}cm",
+        "adjustment": adjustment_text,
+        "advice": advice_text,
         "detail": (
-            f"\u53ef\u628a\u89c6\u89c9\u8170\u7ebf\u63a7\u5236\u5728"
-            f"\u8ddd\u5934\u9876\u7ea6 {ideal_waistline}cm \u9644\u8fd1\uff0c"
-            "\u518d\u6839\u636e\u7167\u7247\u5fae\u8c03\u3002"
+            f"\u5f53\u524d\u6bd4\u4f8b\u4e0e\u76ee\u6807 {TARGET_RATIO:.3f} "
+            f"\u7684\u5dee\u8ddd\u4e3a {ratio_gap:.3f}\uff0c"
+            f"\u6309 {height_cm}cm \u8eab\u9ad8\u6362\u7b97\u7ea6\u4e3a "
+            f"{adjustment_cm:.1f}cm\u3002"
         ),
-        "ratio_comment": ratio_comment,
+        "ratio_comment": (
+            "\u5df2\u6839\u636e\u5de6\u4fa7\u8eab\u9ad8\u548c\u5f53\u524d\u6bd4\u4f8b"
+            "\u751f\u6210\u8170\u7ebf\u4f18\u5316\u5efa\u8bae\u3002"
+        ),
     }
 
 
@@ -142,26 +148,33 @@ with right_col:
     st.subheader(TEXT["result_title"])
 
     if analyze_clicked:
-        if uploaded_file is None:
-            st.warning(TEXT["upload_warning"])
+        suggestion = build_suggestion(height_cm, upper_lower_ratio)
+
+        st.success(suggestion["ratio_comment"])
+
+        metric_col_1, metric_col_2, metric_col_3 = st.columns(3)
+        metric_col_1.metric(TEXT["height_metric"], f"{height_cm}cm")
+        metric_col_2.metric(TEXT["ratio_metric"], f"{upper_lower_ratio:.2f}")
+        metric_col_3.metric(TEXT["target_ratio_metric"], f"{TARGET_RATIO:.3f}")
+
+        st.markdown(TEXT["adjustment_title"])
+        adjustment_box = st.container(border=True)
+        adjustment_box.metric(
+            TEXT["adjustment_metric"],
+            suggestion["adjustment_cm"],
+        )
+        adjustment_box.write(suggestion["adjustment"])
+
+        st.markdown(TEXT["style_title"])
+        if upper_lower_ratio < 0.6:
+            st.warning(suggestion["advice"])
         else:
-            suggestion = build_suggestion(height_cm, upper_lower_ratio)
+            st.info(suggestion["advice"])
 
-            st.success(suggestion["ratio_comment"])
+        st.markdown(TEXT["reference"])
+        st.write(suggestion["detail"])
 
-            metric_col_1, metric_col_2 = st.columns(2)
-            metric_col_1.metric(TEXT["height_metric"], f"{height_cm}cm")
-            metric_col_2.metric(TEXT["ratio_metric"], f"{upper_lower_ratio:.2f}")
-
-            st.markdown(TEXT["core_advice"])
-            st.write(f"- {suggestion['waistline']}")
-            st.write(f"- {suggestion['color']}")
-            st.write(f"- {suggestion['fit']}")
-
-            st.markdown(TEXT["reference"])
-            st.write(suggestion["detail"])
-
-            st.divider()
-            st.caption(TEXT["prototype_note"])
+        st.divider()
+        st.caption(TEXT["prototype_note"])
     else:
         st.info(TEXT["click_hint"])
